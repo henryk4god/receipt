@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #1e293b;
+        }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        .card { background: white; max-width: 500px; margin: auto; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 0.4rem; font-weight: 600; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 1rem; }
+        button:hover { background: #1d4ed8; transform: scale(1.02); }
+        #loader { display: none; text-align: center; margin-top: 1rem; }
+        .spin { animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Receipt Generator</h2>
+        <form id="receiptForm">
+            <div class="form-group">
+                <label>Receipt No</label>
+                <input type="text" name="receipt_no" placeholder="00000/26" required>
+            </div>
+            <div class="form-group">
+                <label>Select Unit</label>
+                <select name="unit" id="unitSelect" required onchange="updateName()">
+                    <option value="">Loading units...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" id="userName" readonly style="background: #f1f5f9;">
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label>Amount (₦)</label>
+                <input type="number" name="amount" required>
+            </div>
+            <div class="form-group">
+                <label>Being Payment of</label>
+                <input type="text" name="payment_for" required>
+            </div>
+            <button type="submit" id="submitBtn">Generate PDF</button>
+        </form>
+        <div id="loader"><span class="spin">⏳</span> Processing...</div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxP1Ag8GOdn7_2I2X8O8lbDG6JjAf_4gj1IiSkI7YeETCT18Ihis8HNKAXMJFgrteXT/exec";
+        let unitData = [];
+
+        // Fetch Units on Load
+        window.onload = async () => {
+            const resp = await fetch(SCRIPT_URL + "?action=getUnits"); // Note: You'll need a simple helper in GS to return this
+            // For now, let's assume you'll hardcode or fetch via standard GS call
+        };
+
+        document.getElementById('receiptForm').onsubmit = async (e) => {
+            e.preventDefault();
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loader').style.display = 'block';
+
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if(result.status === 'success') {
+                    window.location.href = result.url;
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (err) {
+                alert("Submission failed. Check CORS or URL.");
+            }
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('loader').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
