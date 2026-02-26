@@ -7,67 +7,83 @@
     <script src="database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 10px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: var(--primary); font-size: 1.2rem; margin-bottom: 20px; }
+        :root { --primary: #1d4ed8; --bg: #f8fafc; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 15px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: var(--primary); font-size: 1.3rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
         .field { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #64748b; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        textarea { text-transform: uppercase; }
+        label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #475569; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); outline: none; }
         .naira-wrapper { position: relative; }
-        .naira-wrapper::before { content: "₦"; position: absolute; left: 10px; top: 10px; font-weight: bold; color: #94a3b8; }
-        .naira-input { padding-left: 25px; }
-        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-        #status { margin-top: 15px; text-align: center; font-size: 13px; }
-        .success-link { color: #059669; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
+        .naira-wrapper::before { content: "₦"; position: absolute; left: 12px; top: 12px; font-weight: bold; color: #64748b; }
+        .naira-input { padding-left: 30px; }
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button:disabled { background: #94a3b8; }
+        #status { margin-top: 20px; text-align: center; font-size: 14px; }
+        .success-box { background: #ecfdf5; color: #065f46; padding: 15px; border-radius: 8px; border: 1px solid #a7f3d0; }
+        .success-link { font-weight: bold; color: #047857; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Receipt Generator</h2>
+    <h2>Receipt Tool</h2>
     <form id="receiptForm">
         <div class="field">
-            <label>RECEIPT NO</label>
-            <input type="text" name="receipt_no" placeholder="001/26" required>
+            <label>RECEIPT TYPE</label>
+            <select name="receipt_type" required>
+                <option value="Energy Receipt">Energy Receipt</option>
+                <option value="Service Charge Receipt">Service Charge Receipt</option>
+            </select>
         </div>
+
+        <div class="field">
+            <label>RECEIPT NO (Red Text)</label>
+            <input type="text" name="receipt_no" placeholder="e.g., 001/26" required>
+        </div>
+
         <div class="field">
             <label>UNIT</label>
             <select name="unit" id="unitInput" required>
-                <option value="">-- Select --</option>
+                <option value="">-- Select Resident Unit --</option>
             </select>
         </div>
+
         <div class="field">
-            <label>FULL NAME</label>
+            <label>FULL NAME (Auto-filled)</label>
             <input type="text" name="name" id="nameInput" readonly style="background: #f1f5f9;">
         </div>
+
         <div class="field">
             <label>DATE</label>
             <input type="date" name="date" id="datePicker" required>
         </div>
+
         <div class="field">
-            <label>AMOUNT (FIGURE)</label>
+            <label>AMOUNT (Figure)</label>
             <div class="naira-wrapper">
                 <input type="number" name="amount" class="naira-input" placeholder="0.00" step="0.01" required>
             </div>
         </div>
+
         <div class="field">
             <label>AMOUNT IN WORDS</label>
-            <textarea name="amount_words" rows="2" placeholder="FIFTY THOUSAND NAIRA ONLY" required></textarea>
+            <textarea name="amount_words" rows="2" placeholder="e.g., Fifty Thousand Naira Only" required></textarea>
         </div>
+
         <div class="field">
             <label>BEING PAYMENT OF</label>
-            <input type="text" name="payment_for" placeholder="Energy Bill Jan 2026" required>
+            <input type="text" name="payment_for" placeholder="e.g., February 2026 Bill" required>
         </div>
-        <button type="submit" id="submitBtn">Generate PDF</button>
+
+        <button type="submit" id="submitBtn">Generate Receipt PDF</button>
     </form>
     <div id="status"></div>
 </div>
 
 <script>
-    // Initialize Database
+    // 1. Populate Dropdown
     const unitSelect = document.getElementById('unitInput');
     RESIDENTS_DB.forEach(item => {
         let opt = document.createElement('option');
@@ -75,14 +91,17 @@
         unitSelect.appendChild(opt);
     });
 
+    // 2. Auto-fill Name
     unitSelect.onchange = () => {
         const found = RESIDENTS_DB.find(i => i.unit === unitSelect.value);
         document.getElementById('nameInput').value = found ? found.name : "";
     };
 
+    // 3. Set Current Date
     document.getElementById('datePicker').valueAsDate = new Date();
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynZQW5upQF0jMEDu6oyvKWy0HsHA_ffEfmX1Gm9FLpUhkPGt5A4u-72aXWBNw1PkMl2A/exec";
+    // 4. Submit to Google Apps Script
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynZQW5upQF0jMEDu6oyvKWy0HsHA_ffEfmX1Gm9FLpUhkPGt5A4u-72aXWBNw1PkMl2A/exec"; // REPLACE THIS
 
     document.getElementById('receiptForm').onsubmit = function(e) {
         e.preventDefault();
@@ -90,13 +109,13 @@
         const status = document.getElementById('status');
         
         btn.disabled = true;
-        status.innerHTML = "⏳ Generating Receipt...";
+        status.innerHTML = "⏳ Processing... Please wait.";
 
         fetch(SCRIPT_URL, { method: 'POST', body: new FormData(this) })
         .then(res => res.json())
         .then(data => {
             if(data.status === 'success') {
-                status.innerHTML = `✅ Success!<br><a href="${data.url}" target="_blank" class="success-link">View/Download PDF</a>`;
+                status.innerHTML = `<div class="success-box">✅ Receipt Created!<br><a href="${data.url}" target="_blank" class="success-link">Download / Print PDF</a></div>`;
                 e.target.reset();
                 document.getElementById('datePicker').valueAsDate = new Date();
             } else {
@@ -105,7 +124,7 @@
             btn.disabled = false;
         })
         .catch(() => {
-            status.innerHTML = "❌ Connection Error. Check internet.";
+            status.innerHTML = "❌ Connection Error. Please try again.";
             btn.disabled = false;
         });
     };
