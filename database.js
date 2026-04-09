@@ -1,6 +1,6 @@
 const RESIDENTS_DB = [
     { unit: "A1", name: "SAAD & HAFSAT ABDULSALAM" },
-    { unit: "A2", name: "OLUWASEUN  ALAGBADA" },
+    { unit: "A2", name: "CHINEDU RICHARD NNAMANI" },
     { unit: "A3", name: "ENETOMHE OTSEMOBOR" },
     { unit: "A4", name: "PRECIOUS EMMANUEL-OKOYE" },
     { unit: "B1", name: "OPUSUNJU AMONIA" },
@@ -30,7 +30,7 @@ const RESIDENTS_DB = [
     { unit: "H1", name: "BISOLA IBIYEYE ADEROJU" },
     { unit: "H2", name: "YVONNE OKORUWA" },
     { unit: "H3", name: "ALEREBO OLAOLU" },
-    { unit: "H4", name: "OLATOYE & MORAYO EDUN" },
+    { unit: "H4", name: "Dr.  MRS MARIA NEBOYA" },
     { unit: "I1", name: "THADDEUS AONDOAKAA" },
     { unit: "I2", name: "BABS SOBANJO/EDEFE OJOMO" },
     { unit: "I3", name: "ROTIMI & CECILIA LAWAL" },
