@@ -1,6 +1,6 @@
 const RESIDENTS_DB = [
     { unit: "A1", name: "SAAD & HAFSAT ABDULSALAM" },
-    { unit: "A2", name: "CHINEDU RICHARD NNAMANI" },
+    { unit: "A2", name: "OLUWASEUN ALAGBADA" },
     { unit: "A3", name: "ENETOMHE OTSEMOBOR" },
     { unit: "A4", name: "PRECIOUS EMMANUEL-OKOYE" },
     { unit: "B1", name: "OPUSUNJU AMONIA" },
